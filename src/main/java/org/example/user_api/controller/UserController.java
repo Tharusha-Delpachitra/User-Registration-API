@@ -2,13 +2,14 @@ package org.example.user_api.controller;
 
 import org.example.user_api.dto.UserRequestDto;
 import org.example.user_api.dto.UserResponseDto;
+import org.example.user_api.model.UserRoles;
 import org.example.user_api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
@@ -29,6 +30,13 @@ public class UserController {
     public Page<UserResponseDto> searchUsersByRole(@RequestParam String role,
                                                    @RequestParam(defaultValue = "0") int page,
                                                    @RequestParam(defaultValue = "10") int size) {
+
+        String validatedRole = role.toUpperCase();
+
+        if (!UserRoles.isValidRole(validatedRole)) {
+            throw new IllegalArgumentException("Invalid role: " + validatedRole);
+        }
+
         return userService.searchUsersByRole(role.toUpperCase(), page, size);
     }
 }

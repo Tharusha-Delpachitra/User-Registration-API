@@ -3,6 +3,7 @@ package org.example.user_api.service;
 import org.example.user_api.dto.UserRequestDto;
 import org.example.user_api.dto.UserResponseDto;
 import org.example.user_api.model.User;
+import org.example.user_api.model.UserRoles;
 import org.example.user_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,11 +25,18 @@ public class UserServiceImpl implements UserService {
         if(userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
             throw new RuntimeException("Email already registered.");
         }
+
+        String role = userRequestDto.getRole().toUpperCase();
+        if (!UserRoles.isValidRole(role)) {
+            throw new RuntimeException("Invalid role: " + role);
+        }
+
         User user = new User();
         user.setName(userRequestDto.getName());
         user.setEmail(userRequestDto.getEmail());
         user.setPassword(userRequestDto.getPassword());
         user.setRole(userRequestDto.getRole());
+
         User savedUser = userRepository.save(user);
         return mapToResponseDto(savedUser);
     }
